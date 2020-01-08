@@ -1,6 +1,7 @@
 use board::Board;
 use std::io;
 
+// should these be an enum?
 const X: char = 'x';
 const O: char = 'o';
 
@@ -14,10 +15,37 @@ pub fn new_game() -> Game {
     }
 }
 
-pub fn move_request() -> usize {
-    let mut move_request = String::new();
-    io::stdin().read_line(&mut move_request).expect("fail");
-    return move_request.trim().parse::<usize>().unwrap();
+pub fn get_move_index() -> usize {
+    loop {
+        println!("where do you want to go?");
+
+        let mut move_request = String::new();
+        match io::stdin().read_line(&mut move_request) {
+            Ok(_) => (),
+            Err(error) => {
+                println!("Could not read value. Please try again.");
+                println!("{:?}", error);
+                continue;
+            }
+        }
+
+        let parsed_value = move_request.trim().parse::<usize>();
+        let value = match parsed_value {
+            Ok(v) => v,
+            Err(error) => {
+                println!("Could not convert value to positive integer. Please try again.");
+                println!("{:?}", error);
+                continue;
+            }
+        };
+
+        if value > 8 {
+            println!("Integer must be a number 0-8. Please try again.");
+            continue;
+        }
+
+        return value;
+    }
 }
 
 impl Game { 
@@ -35,18 +63,12 @@ impl Game {
         (board.squares[2].value == board.squares[4].value && board.squares[4].value == board.squares[6].value)
     }
 
-    pub fn winner(&self) -> char {
-        match self.current_turn {
-            X => O,
-            _ => X,
-        }
-    }
-
+    //enum will help?
     pub fn change_turn(&mut self) {
-        if self.current_turn == 'x' {
-            self.current_turn = 'o';
+        if self.current_turn == X {
+            self.current_turn = O;
         } else {
-            self.current_turn = 'x';
+            self.current_turn = X;
         }
     }
 }
